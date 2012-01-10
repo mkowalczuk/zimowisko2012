@@ -22,10 +22,12 @@ public class AgendaFetcherThread extends Thread {
 	private final String AGENDA_URL = "http://zimowisko2012.konfeo.com/" + AGENDA_FILENAME;
 	private Context ctx;
 	private Handler handler;
+	private boolean forceUpdate;
 
-	public AgendaFetcherThread(Context ctx, Handler handler) {
+	public AgendaFetcherThread(Context ctx, Handler handler, boolean forceUpdate) {
 		this.ctx = ctx;
 		this.handler = handler;
+		this.forceUpdate = forceUpdate;
 	}
 
 	@Override
@@ -37,7 +39,7 @@ public class AgendaFetcherThread extends Thread {
 			BufferedWriter bw = null;
 			
 			File cachedAgenda = new File(ctx.getFilesDir() + "/" + AGENDA_FILENAME);
-			if (cachedAgenda.exists()) {
+			if (cachedAgenda.exists() && !forceUpdate) {
 				Log.d("agenda", "loading agenda from file");
 
 				br = new BufferedReader(new FileReader(cachedAgenda));
