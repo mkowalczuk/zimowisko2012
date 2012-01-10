@@ -17,6 +17,9 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class MainActivity extends ListActivity {
 	private final List<Integer> DAYS_CALENDAR = Arrays.asList(Calendar.FRIDAY, Calendar.SATURDAY,
@@ -32,6 +35,8 @@ public class MainActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+
+		getListView().setOnItemClickListener(new MyOnItemClickListener());
 
 		h = new Handler(new AgendaHandlerCallback());
 		refreshAgenda(false);
@@ -131,5 +136,22 @@ public class MainActivity extends ListActivity {
 		}
 
 		return true;
+	}
+
+	private class MyOnItemClickListener implements OnItemClickListener {
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			AgendaEventAdapter adapter = adapters[displayedDay];
+
+			AgendaEvent current = (AgendaEvent) adapter.getItem(position);
+			boolean previousState = current.summaryVisible;
+
+			for (int i = 0; i < adapter.getCount(); i++) {
+				((AgendaEvent) adapter.getItem(i)).summaryVisible = false;
+			}
+			current.summaryVisible = !previousState;
+
+			adapter.notifyDataSetChanged();
+		}
 	}
 }
