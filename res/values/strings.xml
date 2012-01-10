@@ -3,5 +3,9 @@
 
     <string name="app_name">Zimowisko 2012</string>
     <string name="no_data">Nie wczytano danych!</string>
+    <string name="friday">Piątek</string>
+    <string name="saturday">Sobota</string>
+    <string name="sunday">Niedziela</string>
+    <string name="refresh">Odśwież agendę</string>
 
 </resources>

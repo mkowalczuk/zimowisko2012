@@ -15,10 +15,13 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class MainActivity extends ListActivity {
 	private final List<Integer> DAYS_CALENDAR = Arrays.asList(Calendar.FRIDAY, Calendar.SATURDAY,
 			Calendar.SUNDAY);
+	private final int[] DAYS_STRING_ID = { R.string.friday, R.string.saturday, R.string.sunday };
 
 	private Handler h;
 	private AgendaEventAdapter[] adapters;
@@ -31,14 +34,19 @@ public class MainActivity extends ListActivity {
 		setContentView(R.layout.main);
 
 		h = new Handler(new AgendaHandlerCallback());
-		AgendaFetcherThread agendaFetcher = new AgendaFetcherThread(this, h);
+		refreshAgenda(false);
+	}
+
+	private void refreshAgenda(boolean forceUpdate) {
+		AgendaFetcherThread agendaFetcher = new AgendaFetcherThread(this, h, forceUpdate);
 		agendaFetcher.start();
 	}
 
 	private void loadDay(int day) {
 		getListView().setAdapter(adapters[day]);
+		displayedDay = day;
 	}
-	
+
 	private void loadCurrentDay() {
 		Calendar c = Calendar.getInstance();
 		int day = DAYS_CALENDAR.indexOf(c.get(Calendar.DAY_OF_WEEK));
@@ -46,7 +54,7 @@ public class MainActivity extends ListActivity {
 			day = 0;
 		loadDay(day);
 	}
-	
+
 	private void createAdapters(JSONArray agenda) {
 		adapters = new AgendaEventAdapter[agenda.length()];
 
@@ -100,5 +108,29 @@ public class MainActivity extends ListActivity {
 			
 			return true;
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		for (int i = 0; i < 3; i++)
+			menu.add(Menu.NONE, i, i, DAYS_STRING_ID[i]).setIcon(
+					android.R.drawable.ic_menu_my_calendar);
+
+		menu.add(Menu.NONE, R.string.refresh, 3, R.string.refresh).setIcon(
+				android.R.drawable.ic_menu_rotate);
+
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		if (id == R.string.refresh) {
+			refreshAgenda(true);
+		} else {
+			loadDay(id);
+		}
+
+		return true;
 	}
 }
