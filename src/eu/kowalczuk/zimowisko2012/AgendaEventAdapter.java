@@ -36,9 +36,10 @@ public class AgendaEventAdapter extends ArrayAdapter {
 		((TextView) row.findViewById(R.id.start_time)).setText(currentEvent.startTime);
 		((TextView) row.findViewById(R.id.title)).setText(currentEvent.title);
 		((TextView) row.findViewById(R.id.speaker_name)).setText(currentEvent.speakerName);
+
 		TextView tv = (TextView) row.findViewById(R.id.summary);
-		tv.setText(currentEvent.summary.replace("\\n", "\n"));
-		tv.setVisibility(currentEvent.summaryVisible ? View.VISIBLE : View.GONE);
+		tv.setText(currentEvent.summary);
+		tv.setVisibility((currentEvent.summaryVisible && currentEvent.summary.length() > 0) ? View.VISIBLE : View.GONE);
 
 		row.setBackgroundColor(position % 2 == 0 ? 0x80000000 : 0x80606060); // ARGB
 

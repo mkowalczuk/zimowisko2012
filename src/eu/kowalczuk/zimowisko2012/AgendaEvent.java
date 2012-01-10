@@ -12,7 +12,7 @@ public class AgendaEvent {
 		this.startTime = startTime;
 		this.title = title;
 		this.speakerName = speakerName;
-		this.summary = summary;
+		this.summary = summary.replace("\\r\\n", "\n").replaceAll("\\s+$", "");
 	}
 
 	public String toString() {
