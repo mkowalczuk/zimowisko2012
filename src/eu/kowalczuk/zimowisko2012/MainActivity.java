@@ -43,6 +43,7 @@ public class MainActivity extends ListActivity {
 	}
 
 	private void loadDay(int day) {
+		setTitle(getString(R.string.app_name) + " - " + getString(DAYS_STRING_ID[day]));
 		getListView().setAdapter(adapters[day]);
 		displayedDay = day;
 	}
@@ -62,29 +63,27 @@ public class MainActivity extends ListActivity {
 			Log.d("agenda", "" + agenda.length());
 			for (int i = 0; i < agenda.length(); i++) {
 				ArrayList<AgendaEvent> dayEvents = new ArrayList<AgendaEvent>();
-				
+
 				JSONArray dayArray = agenda.getJSONArray(i);
 				JSONArray events = dayArray.getJSONArray(1);
 				for (int j = 0; j < events.length(); j++) {
 					JSONObject event = events.getJSONObject(j);
 					Log.d("agenda", event.toString());
-					
+
 					String attendee = "";
 					String body = "";
 					try {
-						 attendee = event.getString("attendee");
+						attendee = event.getString("attendee");
 					} catch (JSONException e) {
 					}
 					try {
-						 body = event.getString("body");
+						body = event.getString("body");
 					} catch (JSONException e) {
 					}
 					String[] time = event.getString("moment").split("T")[1].split(":");
 					String moment = time[0] + ":" + time[1];
-					dayEvents.add(new AgendaEvent(moment,
-							event.getString("title"), 
-							attendee,
-							body));
+					dayEvents
+							.add(new AgendaEvent(moment, event.getString("title"), attendee, body));
 				}
 				adapters[i] = new AgendaEventAdapter(this, R.layout.list_element, dayEvents);
 			}
@@ -93,7 +92,7 @@ public class MainActivity extends ListActivity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private class AgendaHandlerCallback implements Callback {
 		@Override
 		public boolean handleMessage(Message msg) {
@@ -105,7 +104,7 @@ public class MainActivity extends ListActivity {
 				loadCurrentDay();
 			else
 				loadDay(displayedDay);
-			
+
 			return true;
 		}
 	}
