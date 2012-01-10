@@ -10,7 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class AgendaEventAdapter extends ArrayAdapter {
+public class AgendaEventAdapter extends ArrayAdapter<AgendaEvent> {
 	int resource;
 
 	public AgendaEventAdapter(Context context, int resource, ArrayList<AgendaEvent> agendaEvents) {
