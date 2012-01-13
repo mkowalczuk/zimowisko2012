@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,12 +15,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ListView;
 
 public class MainActivity extends ListActivity {
 	private final List<Integer> DAYS_CALENDAR = Arrays.asList(Calendar.FRIDAY, Calendar.SATURDAY,
@@ -29,17 +34,29 @@ public class MainActivity extends ListActivity {
 	private Handler h;
 	private AgendaEventAdapter[] adapters;
 	private int displayedDay = -1;
-
+	TextToSpeech tts;
+	boolean ttsInitialized = false;
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		getListView().setOnItemClickListener(new MyOnItemClickListener());
+		ListView lv = getListView();
+		lv.setOnItemClickListener(new MyOnItemClickListener());
+		lv.setOnItemLongClickListener(new MyOnItemLongClickListener());
 
 		h = new Handler(new AgendaHandlerCallback());
 		refreshAgenda(false);
+		
+		tts = new TextToSpeech(MainActivity.this, new OnInitListener() {
+			@Override
+			public void onInit(int status) {
+				tts.setLanguage(new Locale(getString(R.string.tts_lang)));
+				ttsInitialized = true;
+			}
+		});
 	}
 
 	private void refreshAgenda(boolean forceUpdate) {
@@ -138,12 +155,18 @@ public class MainActivity extends ListActivity {
 		return true;
 	}
 
+	private AgendaEvent getEventFromAdapter(int position) {
+		AgendaEventAdapter adapter = adapters[displayedDay];
+
+		return (AgendaEvent) adapter.getItem(position);
+	}
+	
 	private class MyOnItemClickListener implements OnItemClickListener {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			AgendaEventAdapter adapter = adapters[displayedDay];
-
-			AgendaEvent current = (AgendaEvent) adapter.getItem(position);
+			AgendaEvent current = getEventFromAdapter(position);
+			
 			boolean previousState = current.summaryVisible;
 
 			for (int i = 0; i < adapter.getCount(); i++) {
@@ -152,6 +175,22 @@ public class MainActivity extends ListActivity {
 			current.summaryVisible = !previousState;
 
 			adapter.notifyDataSetChanged();
+		}
+	}
+	
+	private class MyOnItemLongClickListener implements OnItemLongClickListener {
+		@Override
+		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+			final AgendaEvent current = getEventFromAdapter(position);
+			
+			if (ttsInitialized) {
+				tts.speak(current.title, TextToSpeech.QUEUE_FLUSH, null);
+				if (current.speakerName.length() > 0)
+					tts.speak(getString(R.string.speaker) + current.speakerName, TextToSpeech.QUEUE_ADD, null);
+				tts.speak(current.summary, TextToSpeech.QUEUE_ADD, null);
+			}
+									
+			return true;
 		}
 	}
 }

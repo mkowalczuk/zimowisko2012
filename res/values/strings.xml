@@ -7,5 +7,7 @@
     <string name="saturday">Sobota</string>
     <string name="sunday">Niedziela</string>
     <string name="refresh">Odśwież agendę</string>
-
+    <string name="tts_lang">pol</string>
+    <string name="speaker">wykładowca: </string>
+    
 </resources>
