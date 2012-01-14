@@ -36,7 +36,7 @@ public class MainActivity extends ListActivity {
 	private int displayedDay = -1;
 	TextToSpeech tts;
 	boolean ttsInitialized = false;
-	
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,7 +49,7 @@ public class MainActivity extends ListActivity {
 
 		h = new Handler(new AgendaHandlerCallback());
 		refreshAgenda(false);
-		
+
 		tts = new TextToSpeech(MainActivity.this, new OnInitListener() {
 			@Override
 			public void onInit(int status) {
@@ -134,7 +134,7 @@ public class MainActivity extends ListActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		for (int i = 0; i < 3; i++)
-			menu.add(Menu.NONE, i, i, DAYS_STRING_ID[i]).setIcon(
+			menu.add(Menu.NONE, DAYS_STRING_ID[i], i, DAYS_STRING_ID[i]).setIcon(
 					android.R.drawable.ic_menu_my_calendar);
 
 		menu.add(Menu.NONE, R.string.refresh, 3, R.string.refresh).setIcon(
@@ -146,11 +146,16 @@ public class MainActivity extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
-		if (id == R.string.refresh) {
-			refreshAgenda(true);
-		} else {
-			loadDay(id);
+
+		for (int i = 0; i < DAYS_STRING_ID.length; i++) {
+			if (DAYS_STRING_ID[i] == id) {
+				loadDay(i);
+				return true;
+			}
 		}
+
+		if (id == R.string.refresh)
+			refreshAgenda(true);
 
 		return true;
 	}
@@ -160,13 +165,13 @@ public class MainActivity extends ListActivity {
 
 		return (AgendaEvent) adapter.getItem(position);
 	}
-	
+
 	private class MyOnItemClickListener implements OnItemClickListener {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			AgendaEventAdapter adapter = adapters[displayedDay];
 			AgendaEvent current = getEventFromAdapter(position);
-			
+
 			boolean previousState = current.summaryVisible;
 
 			for (int i = 0; i < adapter.getCount(); i++) {
@@ -177,19 +182,20 @@ public class MainActivity extends ListActivity {
 			adapter.notifyDataSetChanged();
 		}
 	}
-	
+
 	private class MyOnItemLongClickListener implements OnItemLongClickListener {
 		@Override
 		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 			final AgendaEvent current = getEventFromAdapter(position);
-			
+
 			if (ttsInitialized) {
 				tts.speak(current.title, TextToSpeech.QUEUE_FLUSH, null);
 				if (current.speakerName.length() > 0)
-					tts.speak(getString(R.string.speaker) + current.speakerName, TextToSpeech.QUEUE_ADD, null);
+					tts.speak(getString(R.string.speaker) + current.speakerName,
+							TextToSpeech.QUEUE_ADD, null);
 				tts.speak(current.summary, TextToSpeech.QUEUE_ADD, null);
 			}
-									
+
 			return true;
 		}
 	}
